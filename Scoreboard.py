@@ -21,20 +21,20 @@ def reset_data():
     global match_data
     match_data = {
         'date': '',
-        'first_player': '',
-        'second_player': '',
+        'player_1': '',
+        'player_2': '',
         'location': '',
         'championship': '',
         'age_group': '',
         'stage': '',
         'event': '',
         'gender': '',
-        'first_club': '',
-        'second_club': '',
-        'first_sets': 0,
-        'second_sets': 0,
-        'first_points': 0,
-        'second_points': 0,
+        'club_1': '',
+        'club_2': '',
+        'sets_1': 0,
+        'sets_2': 0,
+        'points_1': 0,
+        'points_2': 0,
         'lead': 'draw',
         'sets': 0
         }
@@ -45,23 +45,25 @@ def create_image (match_data):
     draw = ImageDraw.Draw(image)
     font_basic = ImageFont.truetype('Montserrat-Bold.ttf',32)
     font_sets = ImageFont.truetype('Montserrat-Bold.ttf',38)
-    draw.text(xy=(95,31),text=str(match_data['first_player']),fill=(255,255,255),font=font_basic)
-    draw.text(xy=(85,81),text=str(match_data['second_player']),fill=(255,255,255),font=font_basic)
-    draw.text(xy=(464,27),text=str(match_data['first_sets']),fill=(47,53,66),font=font_sets)
-    draw.text(xy=(464,77),text=str(match_data['second_sets']),fill=(47,53,66),font=font_sets)
-    draw.text(xy=(529,31),text=str(match_data['first_points']),fill=(255,255,255),font=font_basic)
-    draw.text(xy=(529,81),text=str(match_data['second_points']),fill=(255,255,255),font=font_basic)
+    white = '#f4f4f4'
+    black = '#171717'
+    draw.text(xy=(95,31),text='{} | {}'.format(match_data['player_1'], match_data['club_1'].split('-')[1].strip()),fill=(white),font=font_basic)
+    draw.text(xy=(85,81),text='{} | {}'.format(match_data['player_2'], match_data['club_2'].split('-')[1].strip()),fill=(white),font=font_basic)
+    draw.text(xy=(464,27),text=str(match_data['sets_1']),fill=(black),font=font_sets)
+    draw.text(xy=(464,77),text=str(match_data['sets_2']),fill=(black),font=font_sets)
+    draw.text(xy=(529,31),text=str(match_data['points_1']),fill=(white),font=font_basic)
+    draw.text(xy=(529,81),text=str(match_data['points_2']),fill=(white),font=font_basic)
     
     if not os.path.exists('{}/{}'.format(output_folder,set_names[match_data['sets']])):
         os.makedirs('{}/{}'.format(output_folder,set_names[match_data['sets']]))
     
-    image.save('{}/{}/{}-{}.png'.format(output_folder,set_names[match_data['sets']],match_data['sets']+1,match_data['second_points'] + match_data['first_points']))
+    image.save('{}/{}/{}-{}.png'.format(output_folder,set_names[match_data['sets']],match_data['sets']+1,match_data['points_2'] + match_data['points_1']))
 
-# import_csv function definition
-def import_csv_data():
-    csv_file_path = askopenfilename()
+# import_excel function definition
+def import_excel_data():
+    excel_file_path = askopenfilename()
     global df
-    df = read_excel(csv_file_path)
+    df = read_excel(excel_file_path)
     df = df.reset_index()
     
 # import_image function definition
@@ -75,14 +77,15 @@ def set_output_folder():
     global output_folder
     output_folder = askdirectory()
 
+# start_generating function definition
 def start_generating():
     reset_data()    
     line_count = 0
     for index, row in df.iterrows():
         # Edit player names
         if line_count == 0:
-            match_data['first_player'] = row['player_1'].strip()
-            match_data['second_player'] = row['player_2'].strip()
+            match_data['player_1'] = row['player_1'].strip()
+            match_data['player_2'] = row['player_2'].strip()
             match_data['date'] = row['date']
             match_data['location'] = row['location'].strip()
             match_data['championship'] = row['championship'].strip()
@@ -90,23 +93,22 @@ def start_generating():
             match_data['stage'] = row['stage'].strip()
             match_data['event'] = row['event'].strip()
             match_data['gender'] = row['gender'].strip()
-            match_data['first_club'] = row['club_1'].strip()
-            match_data['second_club'] = row['club_2'].strip()
+            match_data['club_1'] = row['club_1'].strip()
+            match_data['club_2'] = row['club_2'].strip()
             line_count += 1
-            print(match_data)
 
         else:
             # Edit the points
-            match_data['first_points'] = int(row['player_1'])
-            match_data['second_points'] = int(row['player_2'])
+            match_data['points_1'] = int(row['player_1'])
+            match_data['points_2'] = int(row['player_2'])
             
             # Edit sets    
             if row['player_1'] == 0 and row['player_2'] == 0:
                 if match_data['lead'] == 'first':
-                    match_data['first_sets'] += 1
+                    match_data['sets_1'] += 1
                     match_data['sets'] += 1
                 elif match_data['lead'] == 'second':
-                    match_data['second_sets'] += 1
+                    match_data['sets_2'] += 1
                     match_data['sets'] += 1
                     
             # Edit the lead
@@ -154,7 +156,7 @@ tk.Button(
     cursor="hand2",
     activebackground=active_color,
     activeforeground=bg_color,
-    command=import_csv_data
+    command=import_excel_data
     ).pack(pady=5)
 
 tk.Button(
