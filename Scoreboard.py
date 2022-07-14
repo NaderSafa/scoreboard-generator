@@ -12,7 +12,7 @@ import os
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 
 set_names = ['01-First Set','02-Second Set','03-Third Set','04-Fourth Set','05-Fifth Set']
-bg_color = '#262626'
+bg_color = '#171717'
 accent_color = '#2ed573'
 active_color = "#7bed9f"
 fg_color = '#f4f4f4'
@@ -45,9 +45,6 @@ def create_image (match_data):
     draw = ImageDraw.Draw(image)
     font_basic = ImageFont.truetype('Montserrat-Bold.ttf',32)
     font_sets = ImageFont.truetype('Montserrat-Bold.ttf',38)
-    # Define colors
-    white = '#f4f4f4'
-    black = '#171717'
     # Define display names
     if match_data['event'] == "Singles":
         display_name_1 = '{} | {}'.format(match_data['player_1'], match_data['club_1'].split('-')[1].strip())
@@ -56,12 +53,12 @@ def create_image (match_data):
         display_name_1 = '{} & {}'.format(match_data['player_1'].split(' ')[0],match_data['player_1'].split(' ')[3])
         display_name_2 = '{} & {}'.format(match_data['player_2'].split(' ')[0],match_data['player_2'].split(' ')[3])
 
-    draw.text(xy=(95,31),text=display_name_1,fill=(white),font=font_basic)
-    draw.text(xy=(85,81),text=display_name_2,fill=(white),font=font_basic)
-    draw.text(xy=(464,27),text=str(match_data['sets_1']),fill=(black),font=font_sets)
-    draw.text(xy=(464,77),text=str(match_data['sets_2']),fill=(black),font=font_sets)
-    draw.text(xy=(529,31),text=str(match_data['points_1']),fill=(white),font=font_basic)
-    draw.text(xy=(529,81),text=str(match_data['points_2']),fill=(white),font=font_basic)
+    draw.text(xy=(95,31),text=display_name_1,fill=(fg_color),font=font_basic)
+    draw.text(xy=(85,81),text=display_name_2,fill=(fg_color),font=font_basic)
+    draw.text(xy=(464,27),text=str(match_data['sets_1']),fill=(bg_color),font=font_sets)
+    draw.text(xy=(464,77),text=str(match_data['sets_2']),fill=(bg_color),font=font_sets)
+    draw.text(xy=(529,31),text=str(match_data['points_1']),fill=(fg_color),font=font_basic)
+    draw.text(xy=(529,81),text=str(match_data['points_2']),fill=(fg_color),font=font_basic)
     
     if not os.path.exists('{}/{}'.format(output_folder,set_names[match_data['sets']])):
         os.makedirs('{}/{}'.format(output_folder,set_names[match_data['sets']]))
@@ -303,8 +300,6 @@ tk.Button(
     activeforeground=fg_color,
     command=start_generating
     ).pack(pady=5)
-
-
 
 window.mainloop()
 
