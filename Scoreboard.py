@@ -5,7 +5,7 @@ Created on Thu Jun 30 00:02:03 2022
 @author: Nader Safa
 """
 
-from pandas import read_excel
+from pandas import read_excel, DatetimeIndex
 import tkinter as tk
 from tkinter.filedialog import askopenfilename, askdirectory
 import os
@@ -77,6 +77,25 @@ def set_output_folder():
     global output_folder
     output_folder = askdirectory()
 
+# create_txt function definition
+def create_txt(match_data):
+
+    txt = """
+    title:
+    Speedball | {} vs {} | Full Match | {} {} {} {}
+    """.format(
+        match_data['player_1'], 
+        match_data['player_2'], 
+        str(match_data['date']).split('-')[0].strip(),
+        match_data['championship'], 
+        match_data['age_group'],
+        match_data['stage']
+        )
+
+    f = open("{}/text.txt".format(output_folder), "w")
+    f.write(txt)
+    f.close()
+
 # start_generating function definition
 def start_generating():
     reset_data()    
@@ -84,15 +103,15 @@ def start_generating():
     for index, row in df.iterrows():
         # Edit player names
         if line_count == 0:
-            match_data['player_1'] = row['player_1'].strip()
-            match_data['player_2'] = row['player_2'].strip()
+            match_data['player_1'] = row['player_1'].strip().title()
+            match_data['player_2'] = row['player_2'].strip().title()
             match_data['date'] = row['date']
-            match_data['location'] = row['location'].strip()
-            match_data['championship'] = row['championship'].strip()
-            match_data['age_group'] = row['age_group'].strip()
-            match_data['stage'] = row['stage'].strip()
-            match_data['event'] = row['event'].strip()
-            match_data['gender'] = row['gender'].strip()
+            match_data['location'] = row['location'].strip().title()
+            match_data['championship'] = row['championship'].strip().title()
+            match_data['age_group'] = row['age_group'].strip().title()
+            match_data['stage'] = row['stage'].strip().upper()
+            match_data['event'] = row['event'].strip().title()
+            match_data['gender'] = row['gender'].strip().title()
             match_data['club_1'] = row['club_1'].strip()
             match_data['club_2'] = row['club_2'].strip()
             line_count += 1
@@ -119,7 +138,8 @@ def start_generating():
             else:
                 match_data['lead'] = 'draw'
                 
-        create_image(match_data)    
+        create_image(match_data)   
+    create_txt(match_data) 
 
 # Define the window
 window = tk.Tk()
