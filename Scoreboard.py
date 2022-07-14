@@ -45,10 +45,19 @@ def create_image (match_data):
     draw = ImageDraw.Draw(image)
     font_basic = ImageFont.truetype('Montserrat-Bold.ttf',32)
     font_sets = ImageFont.truetype('Montserrat-Bold.ttf',38)
+    # Define colors
     white = '#f4f4f4'
     black = '#171717'
-    draw.text(xy=(95,31),text='{} | {}'.format(match_data['player_1'], match_data['club_1'].split('-')[1].strip()),fill=(white),font=font_basic)
-    draw.text(xy=(85,81),text='{} | {}'.format(match_data['player_2'], match_data['club_2'].split('-')[1].strip()),fill=(white),font=font_basic)
+    # Define display names
+    if match_data['event'] == "Singles":
+        display_name_1 = '{} | {}'.format(match_data['player_1'], match_data['club_1'].split('-')[1].strip())
+        display_name_2 = '{} | {}'.format(match_data['player_2'], match_data['club_2'].split('-')[1].strip())
+    elif match_data['event'] == "Doubles":
+        display_name_1 = '{} & {}'.format(match_data['player_1'].split(' ')[0],match_data['player_1'].split(' ')[3])
+        display_name_2 = '{} & {}'.format(match_data['player_2'].split(' ')[0],match_data['player_2'].split(' ')[3])
+
+    draw.text(xy=(95,31),text=display_name_1,fill=(white),font=font_basic)
+    draw.text(xy=(85,81),text=display_name_2,fill=(white),font=font_basic)
     draw.text(xy=(464,27),text=str(match_data['sets_1']),fill=(black),font=font_sets)
     draw.text(xy=(464,77),text=str(match_data['sets_2']),fill=(black),font=font_sets)
     draw.text(xy=(529,31),text=str(match_data['points_1']),fill=(white),font=font_basic)
@@ -80,17 +89,97 @@ def set_output_folder():
 # create_txt function definition
 def create_txt(match_data):
 
-    txt = """
-    title:
-    Speedball | {} vs {} | Full Match | {} {} {} {}
-    """.format(
-        match_data['player_1'], 
-        match_data['player_2'], 
-        str(match_data['date']).split('-')[0].strip(),
-        match_data['championship'], 
-        match_data['age_group'],
-        match_data['stage']
-        )
+    if match_data['lead'] == 'first':
+        winner = match_data['player_1']
+        winner_club = match_data['club_1'].split('-')[0]
+        loser = match_data['player_2']
+        loser_club = match_data['club_2'].split('-')[0]
+    else:
+        winner = match_data['player_2']
+        winner_club = match_data['club_2'].split('-')[0]
+        loser = match_data['player_1']
+        loser_club = match_data['club_1'].split('-')[0]
+
+
+    if match_data['event'] == 'Singles':
+
+        txt = """
+        Title:
+        Speedball | {} vs {} | Full Match | {} {} {} {}
+
+        Description:
+        {} [{}] takes on {} [{}] in the {} of the {} {} at the {} {} Championship {}.
+
+        Date: {}
+        Location: {}
+
+        Facebook: https://www.facebook.com/RowadSpeedballTeam
+        Instagram: https://www.instagram.com/rsc_speedball
+        Tiktok: https://www.tiktok.com/@rsc_speedball
+
+        Tags:
+        speedball,speed ball,speed-ball,player,{},{}
+        """.format(
+            match_data['player_1'], 
+            match_data['player_2'], 
+            str(match_data['date']).split('-')[0].strip(),
+            match_data['championship'], 
+            match_data['age_group'],
+            match_data['stage'],
+            winner,
+            winner_club,
+            loser,
+            loser_club,
+            match_data['stage'],
+            match_data['gender'],
+            match_data['event'],
+            match_data['age_group'],
+            match_data['championship'],
+            str(match_data['date']).split('-')[0].strip(),
+            str(match_data['date']).split(' ')[0],
+            match_data['location'],
+            match_data['player_1'], 
+            match_data['player_2'], 
+            )
+    elif match_data['event'] == 'Doubles':
+        txt = """
+        Title:
+        Speedball | {} vs {} | Full Match | {} {} {} {}
+
+        Description:
+        {} [{}] take on {} [{}] in the {} of the {} {} at the {} {} Championship {}.
+
+        Date: {}
+        Location: {}
+
+        Facebook: https://www.facebook.com/RowadSpeedballTeam
+        Instagram: https://www.instagram.com/rsc_speedball
+        Tiktok: https://www.tiktok.com/@rsc_speedball
+
+        Tags:
+        speedball,speed ball,speed-ball,player,{},{}
+        """.format(
+            match_data['player_1'].split(' ')[0] + " & " + match_data['player_1'].split(' ')[3], 
+            match_data['player_2'].split(' ')[0] + " & " + match_data['player_2'].split(' ')[3], 
+            str(match_data['date']).split('-')[0].strip(),
+            match_data['championship'], 
+            match_data['age_group'],
+            match_data['stage'],
+            winner,
+            winner_club,
+            loser,
+            loser_club,
+            match_data['stage'],
+            match_data['gender'],
+            match_data['event'],
+            match_data['age_group'],
+            match_data['championship'],
+            str(match_data['date']).split('-')[0].strip(),
+            str(match_data['date']).split(' ')[0],
+            match_data['location'],
+            match_data['player_1'], 
+            match_data['player_2'], 
+            )
 
     f = open("{}/text.txt".format(output_folder), "w")
     f.write(txt)
@@ -109,7 +198,7 @@ def start_generating():
             match_data['location'] = row['location'].strip().title()
             match_data['championship'] = row['championship'].strip().title()
             match_data['age_group'] = row['age_group'].strip().title()
-            match_data['stage'] = row['stage'].strip().upper()
+            match_data['stage'] = row['stage'].strip()
             match_data['event'] = row['event'].strip().title()
             match_data['gender'] = row['gender'].strip().title()
             match_data['club_1'] = row['club_1'].strip()
