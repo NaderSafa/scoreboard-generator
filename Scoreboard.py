@@ -155,7 +155,7 @@ def create_txt(match_data):
         Speedball | {} vs {} | Full Match | {} {} {} {}
 
         Description:
-        {} [{}] takes on {} [{}] in the {} of the {} {} at the {} {} Championship {}.
+        {} [{}] takes on {} [{}] in the {} of the {} {} {} at the {} Championship {}.
 
         Date: {}
         Location: {}
@@ -178,9 +178,9 @@ def create_txt(match_data):
             loser,
             loser_club,
             match_data['stage'],
+            match_data['age_group'],
             match_data['gender'],
             match_data['event'],
-            match_data['age_group'],
             match_data['championship'],
             str(match_data['date']).split('-')[0].strip(),
             str(match_data['date']).split(' ')[0],
