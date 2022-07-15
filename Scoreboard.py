@@ -9,7 +9,7 @@ from pandas import read_excel, DatetimeIndex
 import tkinter as tk
 from tkinter.filedialog import askopenfilename, askdirectory
 import os
-from PIL import ImageTk, Image, ImageDraw, ImageFont
+from PIL import ImageTk, Image, ImageDraw, ImageFont, ImageFilter
 
 set_names = ['01-First Set','02-Second Set','03-Third Set','04-Fourth Set','05-Fifth Set']
 bg_color = '#171717'
@@ -43,8 +43,8 @@ def reset_data():
 def create_image (match_data):
     image = Image.open(img)
     draw = ImageDraw.Draw(image)
-    font_basic = ImageFont.truetype('Montserrat-Bold.ttf',32)
-    font_sets = ImageFont.truetype('Montserrat-Bold.ttf',38)
+    font_basic = ImageFont.truetype('scrc/fonts/Montserrat-Bold.ttf',32)
+    font_sets = ImageFont.truetype('scrc/fonts/Montserrat-Bold.ttf',38)
     # Define display names
     if match_data['event'] == "Singles":
         display_name_1 = '{} | {}'.format(match_data['player_1'], match_data['club_1'].split('-')[1].strip())
@@ -65,6 +65,50 @@ def create_image (match_data):
     
     image.save('{}/{}/{}-{}.png'.format(output_folder,set_names[match_data['sets']],match_data['sets']+1,match_data['points_2'] + match_data['points_1']))
 
+# create_thumbnail function definition:
+def create_thumbnail(match_data):
+    # open screenshot, resize to FHD & add blur
+    ss = Image.open(screenshot)
+    ss = ss.resize((1920,1080))
+    ss = ss.filter(ImageFilter.GaussianBlur(5))
+
+    # add logo and darken background
+    base = Image.open("src/singles_thumbnail.png")
+    ss.paste(base, (0,0), base)
+
+    # add text
+    draw = ImageDraw.Draw(ss)
+    font_title = ImageFont.truetype('scrc/fonts/Montserrat-ExtraBold.ttf',60)
+    font_subtitle = ImageFont.truetype('scrc/fonts/Montserrat-Bold.ttf',50)
+    font_footer = ImageFont.truetype('scrc/fonts/Montserrat-Regular.ttf',35)
+    font_player = ImageFont.truetype('scrc/fonts/Montserrat-SemiBold.ttf',60)
+    font_club = ImageFont.truetype('scrc/fonts/Montserrat-ExtraBold.ttf',40)
+    # Define display names
+    # if match_data['event'] == "Singles":
+    #     display_name_1 = '{} | {}'.format(match_data['player_1'], match_data['club_1'].split('-')[1].strip())
+    #     display_name_2 = '{} | {}'.format(match_data['player_2'], match_data['club_2'].split('-')[1].strip())
+    # elif match_data['event'] == "Doubles":
+    #     display_name_1 = '{} & {}'.format(match_data['player_1'].split(' ')[0],match_data['player_1'].split(' ')[3])
+    #     display_name_2 = '{} & {}'.format(match_data['player_2'].split(' ')[0],match_data['player_2'].split(' ')[3])
+
+    draw.text((960,108), match_data['age_group'] + " " + match_data['championship'] + " " + "Championship", fill=(fg_color), anchor="mt", font=font_title)
+    draw.text((960,180), match_data['gender'] + " " + match_data['event'] + " " + match_data['stage'], fill=(fg_color), anchor="mt", font=font_subtitle)
+    draw.text((960,972), str(match_data['date']).split('-')[0].strip() + " | " + match_data['location'], fill=(fg_color), anchor="mb", font=font_footer)
+    draw.text((192,860), match_data['club_1'].split('-')[0], fill=(accent_color), anchor="lb", font=font_club)
+
+    if match_data['event'] == "Singles":
+        draw.text((192,810), match_data['player_1'], fill=(fg_color), anchor="lb", font=font_player)
+        draw.text((1200,325), match_data['player_2'], fill=(fg_color), anchor="lt", font=font_player)
+        draw.text((1200,375), match_data['club_2'].split('-')[0], fill=(accent_color), anchor="lt", font=font_club)
+    elif match_data['event'] == "Doubles":
+        draw.text((192,810),match_data['player_1'].split("&")[1].strip(), fill=(fg_color), anchor="lb", font=font_player)
+        draw.text((192,740),match_data['player_1'].split("&")[0].strip(), fill=(fg_color), anchor="lb", font=font_player)
+        draw.text((1200,325), match_data['player_2'].split("&")[0].strip(), fill=(fg_color), anchor="lt", font=font_player)
+        draw.text((1200,395), match_data['player_2'].split("&")[1].strip(), fill=(fg_color), anchor="lt", font=font_player)
+        draw.text((1200,460), match_data['club_2'].split('-')[0], fill=(accent_color), anchor="lt", font=font_club)
+        
+    ss.save('{}/thumbnail.png'.format(output_folder))
+
 # import_excel function definition
 def import_excel_data():
     excel_file_path = askopenfilename()
@@ -77,6 +121,12 @@ def import_image():
     img_path = askopenfilename()
     global img
     img = img_path
+
+# import_screenshot function definition
+def import_screenshot():
+    screenshot_path = askopenfilename()
+    global screenshot
+    screenshot = screenshot_path
     
 # set_output function definition
 def set_output_folder():
@@ -226,6 +276,7 @@ def start_generating():
                 
         create_image(match_data)   
     create_txt(match_data) 
+    create_thumbnail(match_data)
 
 # Define the window
 window = tk.Tk()
@@ -234,13 +285,13 @@ window.eval("tk::PlaceWindow . center")
 
 # GUI elements
 
-frame1 = tk.Frame(window, width=640, height=360, bg=bg_color) 
+frame1 = tk.Frame(window, width=960, height=540, bg=bg_color) 
 frame1.grid(row=0, column=0)
 # preventchild from modifying parent
 frame1.pack_propagate(False)
 
 # frame1 widgets
-logo_img = ImageTk.PhotoImage(file="logo.png")
+logo_img = ImageTk.PhotoImage(file="src/logo.png")
 logo_widget = tk.Label(frame1, image=logo_img, bg=bg_color)
 logo_widget.image = logo_img
 logo_widget.pack()
@@ -275,6 +326,18 @@ tk.Button(
     activebackground=active_color,
     activeforeground=bg_color,
     command=import_image
+    ).pack(pady=5)
+
+tk.Button(
+    frame1,
+    text='BROWSE SCREENSHOT',
+    font=("TkHeadingFont", 16),
+    bg=accent_color,
+    fg=fg_color,
+    cursor="hand2",
+    activebackground=active_color,
+    activeforeground=bg_color,
+    command=import_screenshot
     ).pack(pady=5)
 
 tk.Button(
