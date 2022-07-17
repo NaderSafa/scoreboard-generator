@@ -99,7 +99,7 @@ def create_thumbnail(match_data):
     if match_data['event'] == "Singles":
         draw.text((192,810), match_data['player_1'], fill=(fg_color), anchor="lb", font=font_player)
         draw.text((1200,325), match_data['player_2'], fill=(fg_color), anchor="lt", font=font_player)
-        draw.text((1200,375), match_data['club_2'].split('-')[0], fill=(accent_color), anchor="lt", font=font_club)
+        draw.text((1200,390), match_data['club_2'].split('-')[0], fill=(accent_color), anchor="lt", font=font_club)
     elif match_data['event'] == "Doubles":
         draw.text((192,810),match_data['player_1'].split("&")[1].strip(), fill=(fg_color), anchor="lb", font=font_player)
         draw.text((192,740),match_data['player_1'].split("&")[0].strip(), fill=(fg_color), anchor="lb", font=font_player)
@@ -194,7 +194,7 @@ def create_txt(match_data):
         Speedball | {} vs {} | Full Match | {} {} {} {}
 
         Description:
-        {} [{}] take on {} [{}] in the {} of the {} {} at the {} {} Championship {}.
+        {} [{}] take on {} [{}] in the {} of the {} {} {} at the {} Championship {}.
 
         Date: {}
         Location: {}
@@ -217,9 +217,9 @@ def create_txt(match_data):
             loser,
             loser_club,
             match_data['stage'],
+            match_data['age_group'],
             match_data['gender'],
             match_data['event'],
-            match_data['age_group'],
             match_data['championship'],
             str(match_data['date']).split('-')[0].strip(),
             str(match_data['date']).split(' ')[0],
