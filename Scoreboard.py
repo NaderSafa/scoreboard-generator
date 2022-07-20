@@ -47,18 +47,22 @@ def create_image (match_data):
     font_sets = ImageFont.truetype('scrc/fonts/Montserrat-Bold.ttf',38)
     # Define display names
     if match_data['event'] == "Singles":
-        display_name_1 = '{} | {}'.format(match_data['player_1'], match_data['club_1'].split('-')[1].strip())
-        display_name_2 = '{} | {}'.format(match_data['player_2'], match_data['club_2'].split('-')[1].strip())
+        if max(len(match_data['player_1']), len(match_data['player_2'])) < 13:
+            display_name_1 = '{} | {}'.format(match_data['player_1'], match_data['club_1'].split('-')[1].strip())
+            display_name_2 = '{} | {}'.format(match_data['player_2'], match_data['club_2'].split('-')[1].strip())
+        else:
+            display_name_1 = match_data['player_1']
+            display_name_2 = match_data['player_2']
     elif match_data['event'] == "Doubles":
         display_name_1 = '{} & {}'.format(match_data['player_1'].split(' ')[0],match_data['player_1'].split(' ')[3])
         display_name_2 = '{} & {}'.format(match_data['player_2'].split(' ')[0],match_data['player_2'].split(' ')[3])
 
     draw.text(xy=(95,31),text=display_name_1,fill=(fg_color),font=font_basic)
     draw.text(xy=(85,81),text=display_name_2,fill=(fg_color),font=font_basic)
-    draw.text(xy=(464,27),text=str(match_data['sets_1']),fill=(bg_color),font=font_sets)
-    draw.text(xy=(464,77),text=str(match_data['sets_2']),fill=(bg_color),font=font_sets)
-    draw.text(xy=(529,31),text=str(match_data['points_1']),fill=(fg_color),font=font_basic)
-    draw.text(xy=(529,81),text=str(match_data['points_2']),fill=(fg_color),font=font_basic)
+    draw.text(xy=(474,27),text=str(match_data['sets_1']),fill=(bg_color),anchor="ma",font=font_sets)
+    draw.text(xy=(474,77),text=str(match_data['sets_2']),fill=(bg_color),anchor="ma",font=font_sets)
+    draw.text(xy=(540,31),text=str(match_data['points_1']),fill=(fg_color),anchor="ma",font=font_basic)
+    draw.text(xy=(540,81),text=str(match_data['points_2']),fill=(fg_color),anchor="ma",font=font_basic)
     
     if not os.path.exists('{}/{}'.format(output_folder,set_names[match_data['sets']])):
         os.makedirs('{}/{}'.format(output_folder,set_names[match_data['sets']]))
@@ -83,14 +87,7 @@ def create_thumbnail(match_data):
     font_footer = ImageFont.truetype('scrc/fonts/Montserrat-Regular.ttf',35)
     font_player = ImageFont.truetype('scrc/fonts/Montserrat-SemiBold.ttf',60)
     font_club = ImageFont.truetype('scrc/fonts/Montserrat-ExtraBold.ttf',40)
-    # Define display names
-    # if match_data['event'] == "Singles":
-    #     display_name_1 = '{} | {}'.format(match_data['player_1'], match_data['club_1'].split('-')[1].strip())
-    #     display_name_2 = '{} | {}'.format(match_data['player_2'], match_data['club_2'].split('-')[1].strip())
-    # elif match_data['event'] == "Doubles":
-    #     display_name_1 = '{} & {}'.format(match_data['player_1'].split(' ')[0],match_data['player_1'].split(' ')[3])
-    #     display_name_2 = '{} & {}'.format(match_data['player_2'].split(' ')[0],match_data['player_2'].split(' ')[3])
-
+    
     draw.text((960,108), match_data['age_group'] + " " + match_data['championship'] + " " + "Championship", fill=(fg_color), anchor="mt", font=font_title)
     draw.text((960,180), match_data['gender'] + " " + match_data['event'] + " " + match_data['stage'], fill=(fg_color), anchor="mt", font=font_subtitle)
     draw.text((960,972), str(match_data['date']).split('-')[0].strip() + " | " + match_data['location'], fill=(fg_color), anchor="mb", font=font_footer)
@@ -237,7 +234,7 @@ def start_generating():
     reset_data()    
     line_count = 0
     for index, row in df.iterrows():
-        # Edit player names
+        # Edit match_data
         if line_count == 0:
             match_data['player_1'] = row['player_1'].strip().title()
             match_data['player_2'] = row['player_2'].strip().title()
